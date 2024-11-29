@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, Pagination, Navigation } from 'swiper/modules';
-import 'swiper/swiper-bundle.css';
-import './Banner.css';
+import Carousel from "react-multi-carousel";
+import "react-multi-carousel/lib/styles.css";
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router';
+import Loader from './Loader';
 
 const Banner = () => {
   const [data, setData] = useState([]);
+  const navigate = useNavigate();
 
   const getProducts = async () => {
     try {
@@ -21,50 +24,92 @@ const Banner = () => {
     getProducts();
   }, []);
 
+  const CustomLeftArrow = ({ onClick }) => (
+    <button
+      onClick={onClick}
+      className="absolute left-2 top-1/2 -translate-y-1/2 text-stone-100 opacity-70 hover:opacity-100 transition-opacity duration-300 focus:outline-none"
+      aria-label="Previous slide"
+    >
+      <ChevronLeft className="w-8 h-8" />
+    </button>
+  );
+
+  CustomLeftArrow.propTypes = {
+    onClick: PropTypes.func.isRequired,
+  };
+
+  const CustomRightArrow = ({ onClick }) => (
+    <button
+      onClick={onClick}
+      className="absolute right-2 top-1/2 -translate-y-1/2 text-stone-100 opacity-70 hover:opacity-100 transition-opacity duration-300 focus:outline-none"
+      aria-label="Next slide"
+    >
+      <ChevronRight className="w-8 h-8" />
+    </button>
+  );
+
+  CustomRightArrow.propTypes = {
+    onClick: PropTypes.func.isRequired,
+  };
+
+  const responsive = {
+    desktop: {
+      breakpoint: { max: 3000, min: 1024 },
+      items: 1
+    },
+    tablet: {
+      breakpoint: { max: 1024, min: 464 },
+      items: 1
+    },
+    mobile: {
+      breakpoint: { max: 464, min: 0 },
+      items: 1
+    }
+  }
+
+  if(!data.length) return <div  className="flex justify-center items-center w-full h-[400px] bg-emerald-950">
+    <Loader />
+  </div>
+
   return (
-    <div className="w-full h-[500px] overflow-hidden bg-stone-100">
-      <Swiper
-        modules={[Autoplay, Pagination, Navigation]}
-        spaceBetween={0}
-        slidesPerView={1}
-        autoplay={{ delay: 5000 }}
-        pagination={{ 
-          clickable: true,
-          bulletClass: 'swiper-pagination-bullet !bg-amber-500',
-          bulletActiveClass: '!bg-amber-700'
-        }}
-        navigation={{
-          nextEl: '.swiper-button-next',
-          prevEl: '.swiper-button-prev',
-        }}
-        loop={true}
-        className="h-full"
+    <div className="w-full h-[400px] overflow-hidden bg-stone-100">
+      <Carousel
+        responsive={responsive}
+        infinite={true}
+        autoPlay={true}
+        autoPlaySpeed={5000}
+        customLeftArrow={<CustomLeftArrow />}
+        customRightArrow={<CustomRightArrow />}
+        showDots={true}
+        dotListClass="!bottom-4"
+        itemClass="h-[400px]"
       >
         {data.map((product, index) => (
-          <SwiperSlide key={index}>
-            <div className="relative w-full h-full hover:bg-slate-100 bg-emerald-950 duration-300 transition-all">
-              <img
-                src={product.images[0]}
-                alt={product.title}
-                className="w-full h-full object-contain"
-              />
-              <div className="absolute main-banner inset-0 hover:bg-emerald-800 hover:bg-opacity-70 duration-300 transition-all flex items-center justify-center">
-                <div className="text-center text-stone-100 max-w-3xl px-4">
-                  <h2 className="text-4xl duration-300 transition-all opacity-0 hover:opacity-100 font-playfair font-bold mb-4 leading-tight">{product.title}</h2>
-                  <p className="mb-6 text-lg opacity-0 duration-300 transition-all font-serif">{product.description}</p>
-                  <button className="px-6 py-3 opacity-0 bg-amber-500 text-stone-100 font-bold rounded-full hover:bg-amber-600 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:ring-opacity-50">
-                    Discover More
-                  </button>
-                </div>
+          <div key={index} className="relative w-full h-full bg-emerald-950 group">
+            <img
+              src={product.images[0]}
+              alt={product.title}
+              className="w-full h-full object-contain"
+            />
+            <div className="absolute inset-0 bg-emerald-950 bg-opacity-0 group-hover:bg-opacity-70 transition-all duration-300 flex items-center justify-center">
+              <div className="text-center text-stone-100 max-w-3xl px-4">
+                <h2 className="text-4xl font-bold mb-4 leading-tight font-playfair opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  {product.title}
+                </h2>
+                <p className="mb-6 text-lg font-serif opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  {product.description}
+                </p>
+                <button onClick={() => navigate(`product/${product.id}`)} className="px-6 py-3 bg-amber-500 text-stone-100 font-bold rounded-full hover:bg-amber-600 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:ring-opacity-50 opacity-0 group-hover:opacity-100">
+                  Explore Now
+                </button>
               </div>
             </div>
-          </SwiperSlide>
+          </div>
         ))}
-      </Swiper>
-      <div className="swiper-button-prev !text-stone-100 !opacity-70 hover:!opacity-100 transition-opacity duration-300"></div>
-      <div className="swiper-button-next !text-stone-100 !opacity-70 hover:!opacity-100 transition-opacity duration-300"></div>
+      </Carousel>
     </div>
   );
 };
+
 
 export default Banner;

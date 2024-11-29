@@ -1,31 +1,39 @@
 import { createContext, useReducer } from "react";
 import PropTypes from "prop-types";
 
+export const CartContext = createContext();
 const cartReducer = (state, action) => {
   switch (action.type) {
     case 'ADD_TO_CART': {
-      const existingProduct = state.find(item => item.id === action.payload.id);
-      if (existingProduct) {
-        return state.map(item =>
-          item.id === action.payload.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
+      console.log("Previous State:", state);
+      console.log("Action Dispatched:", action);
+      
+      const existingProductIndex = state.findIndex(item => item.id === action.payload.id);
+      if (existingProductIndex !== -1) {
+        return [...state];
+      } else {
+        return [...state, { ...action.payload, quantity: 1 }];
       }
-      return [...state, { ...action.payload, quantity: 1 }];
     }
     case 'REMOVE_FROM_CART':
-      return { ...state, items: state.items.filter(item => item.id !== action.itemId) };
+      return state.filter(item => item.id !== action.payload);
 
-    case 'CLEAR_CART':
-      return [];
+    case 'INCREASE_QUANTITY':
+      return state.map(item =>
+        item.id === action.payload ? { ...item, quantity: item.quantity + 1 } : item
+      );
 
+    case 'DECREASE_QUANTITY':
+      return state.map(item =>
+        item.id === action.payload && item.quantity > 1
+          ? { ...item, quantity: item.quantity - 1 }
+          : item
+      ).filter(item => item.quantity > 0);
     default:
       return state;
   }
 }
 
-export const CartContext = createContext();
 
 const CartProvider = ({ children }) => {
 
