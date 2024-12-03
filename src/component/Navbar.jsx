@@ -2,7 +2,7 @@ import { useContext, useState } from 'react'
 import { Search, ShoppingCart, Menu, X } from 'lucide-react'
 import "../Style/navbar.css"
 import { Link, useNavigate } from 'react-router'
-import { CartContext } from '../services/CartContext'
+import { CartContext } from '../store/CartContext'
 import PropTypes from 'prop-types';
 
 const Navbar = ({ onSearchChange }) => {
@@ -18,7 +18,7 @@ const Navbar = ({ onSearchChange }) => {
   };
 
   return (
-    <nav className="sticky z-10 top-0 w-full bg-emerald-900 bg-opacity-70 backdrop-blur-md text-white shadow-lg">
+    <nav className="sticky z-30 top-0 w-full bg-emerald-900 bg-opacity-90 backdrop-blur-sm text-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-center h-20">
           <Link to="/" className="flex-shrink-0">

@@ -1,20 +1,20 @@
 import { Minus, Plus, X } from "lucide-react"
 import { useContext } from "react"
-import { CartContext } from "../services/CartContext"
+import { CartContext } from "../store/CartContext"
 
 const Cart = () => {
   const { cart, dispatch } = useContext(CartContext);
 
   const handleRemoveFromCart = (id) => {
-    dispatch({ type: "REMOVE_FROM_CART", payload: id  });
+    dispatch({ type: "remove_from_cart", payload: id  });
   };
 
   const handleIncreaseQuantity = (id) => {
-    dispatch({ type: "INCREASE_QUANTITY", payload: id });
+    dispatch({ type: "increase_quantity", payload: id });
   };
 
   const handleDecreaseQuantity = (id) => {
-    dispatch({ type: "DECREASE_QUANTITY", payload: id });
+    dispatch({ type: "decrease_quantity", payload: id });
   };
 
   const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
