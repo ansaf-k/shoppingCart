@@ -11,8 +11,9 @@ import 'react-toastify/dist/ReactToastify.css';
 const ProductCard = ({ onSearch }) => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
-  const { cart,dispatch } = useContext(CartContext);
+  const { cart, dispatch } = useContext(CartContext);
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedSort, setSelectedSort] = useState('');
 
   const handleAddCart = (product) => {
     const existingProductIndex = cart.findIndex(item => item.id === product.id);
@@ -27,24 +28,24 @@ const ProductCard = ({ onSearch }) => {
         progress: undefined,
         theme: "dark",
         transition: Slide
-        });
+      });
     } else {
       dispatch({ type: 'add_to_cart', payload: product });
       toast.success('Added to the cart', {
         position: "top-center",
         autoClose: 2000,
-        hideProgressBar: false,
+        hideProgressBar: true,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
         theme: "dark",
         transition: Slide
-        });
+      });
     }
   };
 
-  const fetchProducts = async (query, category) => {
+  const fetchProducts = async (query, category, sort) => {
     let url = 'https://dummyjson.com/products';
     if (query) {
       url += `/search?q=${query}`;
@@ -55,40 +56,53 @@ const ProductCard = ({ onSearch }) => {
     try {
       const response = await fetch(url);
       const data = await response.json();
-      setProducts(data.products);
+      setProducts(data.products.sort((a, b) => {
+        if (sort === 'low') {
+          return a.price - b.price;
+        } else if (sort === 'high') {
+          return b.price - a.price;
+        }
+      }))
     } catch (error) {
       console.error('Error fetching products:', error);
     }
   };
 
   useEffect(() => {
-    fetchProducts(onSearch, selectedCategory);
-  }, [onSearch, selectedCategory]);
+    fetchProducts(onSearch, selectedCategory, selectedSort);
+  }, [onSearch, selectedCategory, selectedSort]);
 
   if (!products.length) {
     return <div className="flex justify-center items-center w-full h-[50vh] bg-stone-200">
       <Loader />
     </div>
   }
+  
   return (
     <div className="bg-stone-100">
-      <div className={`max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 ${onSearch ? 'pt-6' : ''}`}>
-        <div className='flex flex-col sm:flex-row items-center pt-7 pb-4 mb-4'>
-          <div className='flexitems-center'>
-
-            <form className="max-w-sm mx-auto">
-              <select onChange={(e) => setSelectedCategory(e.target.value)} id="countries" className="bg-gray-200 hover:bg-gray-50 border-gray-300 text-emerald-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+      <div className={`max-w-8xl mx-auto px-4 sm:px-6 lg:px-8`}>
+        <div className='flex justify-between flex-col sm:flex-row items-center pt-7 pb-4 mb-4'>
+          <h2 className={`text-3xl flex justify-center content-center font-playfair font-bold text-emerald-800 mb-4 sm:mb-0 sm:ml-4 ${onSearch ? 'hidden' : ''} ${selectedCategory ? 'capitalize' : ''}`}>
+            {selectedCategory ? `Category: ${selectedCategory}` : 'Featured Products'}
+          </h2>
+          <div className='flex items-center'>
+            <form className="max-w-sm mx-5">
+              <select onChange={(e) => setSelectedSort(e.target.value)} id="price-categories" className="bg-gray-200 hover:bg-gray-50 border-gray-300 text-emerald-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                <option value="">Sort by Price</option>
+                <option value="low">Low to High</option>
+                <option value="high">High to Low</option>
+              </select>
+            </form>
+            <form className="max-w-sm">
+              <select onChange={(e) => setSelectedCategory(e.target.value)} id="categories" className="bg-gray-200 hover:bg-gray-50 border-gray-300 text-emerald-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
                 <option value="">All Categories</option>
                 <option value="beauty">Beauty</option>
                 <option value="groceries">Groceries</option>
                 <option value="skin-care">Skin Care</option>
               </select>
             </form>
-
           </div>
-          <h2 className={`text-3xl flex justify-center content-center font-playfair font-bold text-emerald-800 mb-4 sm:mb-0 sm:ml-4 ${onSearch ? 'hidden' : ''} ${selectedCategory ? 'capitalize' : ''}`}>
-            {selectedCategory ? `Category: ${selectedCategory}` : 'Featured Products'}
-          </h2>
+
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {products.map((product) => (
@@ -118,7 +132,6 @@ const ProductCard = ({ onSearch }) => {
         </div>
       </div>
       <ToastContainer
-        position="top-right"
         autoClose={2000}
         hideProgressBar={false}
         newestOnTop={false}

@@ -2,13 +2,14 @@ import { useState, useEffect, useContext } from 'react'
 import { useParams } from 'react-router-dom'
 import { CartContext } from '../store/CartContext'
 import Loader from './Loader'
+import { Slide, toast, ToastContainer } from 'react-toastify'
 
 
 export default function ProductDetails() {
   const { id } = useParams()
   const [product, setProduct] = useState(null)
   const [activeImage, setActiveImage] = useState(0)
-  const { dispatch } = useContext(CartContext)
+  const { cart, dispatch } = useContext(CartContext)
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -26,9 +27,33 @@ export default function ProductDetails() {
     fetchProduct()
   }, [id])
 
-  const handleAddToCart = () => {
-    if (product) {
-      dispatch({ type: 'add_to_cart', payload: { ...product } })
+  const handleAddToCart = (product) => {
+    const existingProductIndex = cart.findIndex(item => item.id === product.id);
+    if (existingProductIndex !== -1) {
+      toast.error('Item already in the cart', {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        transition: Slide
+        });
+    } else {
+      dispatch({ type: 'add_to_cart', payload: product });
+      toast.success('Added to the cart', {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        transition: Slide
+        });
     }
   }
 
@@ -107,7 +132,7 @@ export default function ProductDetails() {
             </div>
             <button
               className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 px-6 rounded-lg flex items-center justify-center text-lg transition-all duration-300 shadow-lg hover:shadow-xl"
-              onClick={handleAddToCart}
+              onClick={() => handleAddToCart(product)}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -122,6 +147,18 @@ export default function ProductDetails() {
           </div>
         </div>
       </div>
+      <ToastContainer
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+        transition:Bounce
+      />
     </div>
   )
 }

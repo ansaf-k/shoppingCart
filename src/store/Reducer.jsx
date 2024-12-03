@@ -3,8 +3,8 @@ import 'react-toastify/dist/ReactToastify.css';
 export const cartReducer = (state, action) => {
     switch (action.type) {
       case 'add_to_cart': {
-        console.log("Previous State:", state);
-        console.log("Action Dispatched:", action);
+        // console.log("Previous State:", state);
+        // console.log("Action Dispatched:", action);
         
         const existingProductIndex = state.findIndex(item => item.id === action.payload.id);
         if (existingProductIndex !== -1) {
